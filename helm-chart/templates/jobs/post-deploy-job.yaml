@@ -1,0 +1,46 @@
+{{- if (.Values.postDeployJob).command }} 
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.name }}-job
+  annotations:
+    argocd.argoproj.io/hook: {{ .Values.postDeployJob.argoHook | default "PostSync" }}
+    argocd.argoproj.io/sync-wave: "3"
+    checksum/configmap: {{ include (print $.Template.BasePath "/configmaps/configmap.yaml") . | sha256sum }}
+    checksum/secret: {{ include (print $.Template.BasePath "/secrets/secret.yaml") . | sha256sum }}  
+spec:
+  backoffLimit: {{ .Values.postDeployJob.retries | default 3 }}
+  template:
+    spec:
+{{- if .Values.serviceAccountName }}
+      automountServiceAccountToken: true
+      serviceAccountName: {{ .Values.serviceAccountName }}
+{{- end }}      
+{{- if .Values.postDeployJob.activeDeadlineSeconds }}              
+      activeDeadlineSeconds: {{ .Values.postDeployJob.activeDeadlineSeconds }}
+{{- end }}            
+      restartPolicy: Never           
+      containers:
+      - name: {{ .Values.name }}-post-deploy
+{{- if .Values.postDeployJob.command }}
+        command: {{ toYaml .Values.postDeployJob.command | nindent 10 }}
+{{- end }}
+{{- if .Values.postDeployJob.args }}              
+        args: {{ toYaml .Values.postDeployJob.args | nindent 10 }}
+{{- end }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.name }}-secret
+            optional: false
+        - configMapRef:
+            name: {{ .Values.name }}-configmap
+            optional: false          
+{{- if .Values.version.digest }}
+        image: {{ .Values.image.registry }}/{{ .Values.image.name }}@{{ .Values.version.digest }}
+{{- else if .Values.version.tag }}
+        image: {{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.version.tag }}
+{{- else }}            
+        image: {{ .Values.image.registry }}/{{ .Values.image.name }}:latest }}
+{{- end }}
+        imagePullPolicy: IfNotPresent
+{{- end }}  

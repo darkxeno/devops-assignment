@@ -1,0 +1,42 @@
+{{- if (.Values.migrationJob).image }} 
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.name }}-migrations
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/sync-wave: "2"
+    checksum/configmap: {{ include (print $.Template.BasePath "/configmaps/configmap.yaml") . | sha256sum }}
+    checksum/secret: {{ include (print $.Template.BasePath "/secrets/secret.yaml") . | sha256sum }}  
+spec:
+  backoffLimit: 3 
+  template:
+    spec:
+{{- if .Values.serviceAccountName }}
+      automountServiceAccountToken: true
+      serviceAccountName: {{ .Values.serviceAccountName }}
+{{- end }}      
+      restartPolicy: Never           
+      containers:
+      - name: {{ .Values.name }}-migrations
+{{- if .Values.migrationJob.command }}
+        command: {{ toYaml .Values.migrationJob.command | nindent 10 }}
+{{- end }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.name }}-secret
+            optional: false
+        - configMapRef:
+            name: {{ .Values.name }}-configmap
+            optional: false          
+{{- if .Values.migrationJob.digest }}
+        image: {{ .Values.image.registry }}/{{ .Values.migrationJob.image }}@{{ .Values.migrationJob.digest }}
+{{- else if .Values.migrationJob.tag }}
+        image: {{ .Values.image.registry }}/{{ .Values.migrationJob.image }}:{{ .Values.migrationJob.tag }}
+{{- else }}            
+        image: {{ .Values.image.registry }}/{{ .Values.migrationJob.image }}:latest
+{{- end }}
+        imagePullPolicy: IfNotPresent
+{{- end }}        
