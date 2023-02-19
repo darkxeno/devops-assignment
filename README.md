@@ -42,4 +42,20 @@ Please provide answers to the following follow-up questions:
 
     How would you secure the RPC port on the Corda node?
 
+    We can encrypt the traffic using the SSL configuration, and expose the port using any of these options, in preference order:
+
+    - If the source and target of the traffic is on the same kubernetes cluster or using private VPC peering and we want to add another layer of protection using mutual TLS, we can use Istio or Envoy.
+    - If the source and target of the traffic is on the same kubernetes cluster we could use network policies to define traffic allowance rules: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+    - If the source and target of the traffic is using private VPC peering we could use firewall rules to control the traffic
+    - Using corda firewall configuration: https://corda.net/blog/corda-firewall%E2%80%8A-%E2%80%8Acomponents-pki-deployment/
+    - Using Azure link services: https://learn.microsoft.com/en-us/azure/private-link/private-link-service-overview
+    - Using private access by VPN or bastion host
+    - Using kubernetes port forwarding or telepresence during admin sessions
+    - Using public access with whitelistened public IPs
+
+    Other options could exists depending on the source of the traffic that needs to connect to the RPC port.
+
     Where are the keys of the Corda node stored, and how are they managed?
+
+    They are currentlt stored on /corda/.secrets file and ignored on .gitignore, the next step should be to configure the required Azure infra to use SOPS and encrypt that file using a key vault key. Once encrypted the file can be added to the git repository safely.
+    https://github.com/mozilla/sops#encrypting-using-azure-key-vault

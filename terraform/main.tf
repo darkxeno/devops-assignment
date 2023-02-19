@@ -50,3 +50,9 @@ module "helm-chart-deployment" {
   database_password = module.postgress-database.admin_password
   acr_login_server  = module.kubernetes-cluster-creation.acr_login_server
 }
+
+module "secrets-management" {
+  source  = "./modules/secrets-management"
+
+  azurerm_resource_group = azurerm_resource_group.corda
+}
