@@ -4,6 +4,18 @@ output "admin_password" {
   sensitive = true
 }
 
+output "database_server_name" {
+  value     = azurerm_postgresql_server.postgres.name
+}
+
+output "database_schema_name" {
+  value     = azurerm_postgresql_database.corda.name
+}
+
+output "database_user" {
+  value     = local.database_user
+}
+
 output "database_fqdn" {
   value     = azurerm_postgresql_server.postgres.fqdn
 }

@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-jdk as node
+FROM eclipse-temurin:8-jdk as node
 LABEL name="corda-notary-node" version="0.0.1"
 
 COPY /corda/nodes/notary/ /corda/

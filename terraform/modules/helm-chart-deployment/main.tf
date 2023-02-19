@@ -35,21 +35,28 @@ port: 10002
 
 image:
   registry: ${var.acr_login_server}
-  name: 'corda-notary-node'  
+  name: corda-notary-node
 
 version:
-  digest: 'sha256:cbc430bbb7f07f52a01dfb21a972aafcd36cd0a9ed7e8247e28be065d353e2da'
-  tag: bf6f17c
+  digest: 'sha256:2ae94e748a1c9839ce7fa7925a42e690f59b8d6998559fb5bb76ae55810f02d7'
+  tag: 977cfcb
 
 configmap:
   DATABASE_URL: ${var.database_url}
-  DATABASE_USER: postgres    
+  DATABASE_USER: ${var.database_user}
   DATASOURCE_CLASS_NAME: org.postgresql.ds.PGSimpleDataSource
 
 secret:
   KEY_STORE_PASSWORD: cordacadevpass
   TRUST_STORE_PASSWORD: trustStorePassword
   DATABASE_PASSWORD: ${var.database_password}
+
+migrationJob:
+  image: corda-notary-node
+  digest: 'sha256:2ae94e748a1c9839ce7fa7925a42e690f59b8d6998559fb5bb76ae55810f02d7'
+  tag: 977cfcb
+  command: ['sh', '-c', 'cd /corda; export BASE_DIR=/corda; java -jar corda.jar run-migration-scripts --core-schemas --app-schemas --base-directory=/corda --config-file=node.conf']
+
 EOF
   ]  
 

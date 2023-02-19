@@ -1,6 +1,10 @@
 
 
 
+locals {
+  database_user = "psqladmin"
+}
+
 resource "random_password" "admin_password" {
   length           = 20
   special          = true
@@ -12,7 +16,7 @@ resource "azurerm_postgresql_server" "postgres" {
   location            = var.azurerm_resource_group.location
   resource_group_name = var.azurerm_resource_group.name
 
-  administrator_login          = "psqladmin"
+  administrator_login          = local.database_user
   administrator_login_password = random_password.admin_password.result
 
   sku_name   = "GP_Gen5_2"
@@ -40,10 +44,6 @@ data "azurerm_subnet" "aks-subnet" {
   resource_group_name  = var.node_resource_group
 }
 
-locals {
-    private_endpoint_ip = "10.224.0.100"
-}
-
 resource "azurerm_private_endpoint" "private-endpoint" {
   name                = "postgres-private-endpoint"
   location            = var.azurerm_resource_group.location
@@ -59,12 +59,11 @@ resource "azurerm_private_endpoint" "private-endpoint" {
   }
 }
 
-/*
-resource "azurerm_postgresql_database" "postgres" {
-  name                = "postgres"
+
+resource "azurerm_postgresql_database" "corda" {
+  name                = "corda"
   server_name         = azurerm_postgresql_server.postgres.name
   resource_group_name = var.azurerm_resource_group.name
   charset             = "UTF8"
   collation           = "English_United States.1252"
 }
-*/

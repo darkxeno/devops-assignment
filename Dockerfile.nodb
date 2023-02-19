@@ -1,0 +1,16 @@
+FROM eclipse-temurin:11-jdk as builder
+LABEL name="corda-nodes-builder" version="0.0.1"
+
+COPY ./corda /corda/
+
+RUN /corda/generateNodes.sh
+
+FROM eclipse-temurin:11-jdk as node
+LABEL name="corda-notary-node" version="0.0.1"
+
+COPY --from=builder /corda/nodes/notary/ /corda/
+COPY --from=builder /corda/libs/ /corda/libs/
+
+COPY node-entrypoint.sh /
+
+CMD [ "/node-entrypoint.sh" ]

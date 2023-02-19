@@ -46,9 +46,11 @@ module "helm-chart-deployment" {
   source  = "./modules/helm-chart-deployment"
 
   kube_config       = module.kubernetes-cluster-creation.kube_config
-  database_url      = "jdbc:postgresql://${module.postgress-database.database_private_ip}:5432/postgres"
+  database_url      = "jdbc:postgresql://${module.postgress-database.database_private_ip}:5432/${module.postgress-database.database_schema_name}?sslmode=require"
+  database_user     = "${module.postgress-database.database_user}@${module.postgress-database.database_server_name}"
   database_password = module.postgress-database.admin_password
   acr_login_server  = module.kubernetes-cluster-creation.acr_login_server
+
 }
 
 module "secrets-management" {

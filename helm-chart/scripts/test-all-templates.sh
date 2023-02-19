@@ -13,7 +13,7 @@ if [ "$1" == "score" ]; then
 	fi
 fi
 
-APPS=("virtual-gallery" "hubspot-sync" "aggregator-proxy" "airlock-iam" "front-api" "front-ui" "art-data-api" "art-data-pipeline" "bauhaus-api" "bauhaus-ui" "kyc" "payment" "shipping" "dada-analytics")
+APPS=("corda-app")
 
 
 for app in ${APPS[@]};

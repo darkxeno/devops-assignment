@@ -9,6 +9,10 @@ variable "kube_config" {
   sensitive = true
 }
 
+variable "database_user" {
+    type      = string
+}
+
 variable "database_password" {
     type      = string
     sensitive = true
