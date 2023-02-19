@@ -25,3 +25,13 @@ variable "database_url" {
 variable "acr_login_server" {
    type = string
 }
+
+variable "key_store_password" {
+    type      = string
+    sensitive = true
+}
+
+variable "trust_store_password" {
+    type      = string
+    sensitive = true
+}

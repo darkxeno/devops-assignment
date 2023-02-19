@@ -1,7 +1,7 @@
 
 # SOPS
-/*
+
 data "sops_file" "secrets" {
-  source_file = "${path.module}/secrets.enc.yaml"
+  input_type  = "json"
+  source_file = "${path.module}/../../../corda/.secrets.enc"
 }
-*/

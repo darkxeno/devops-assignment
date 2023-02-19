@@ -10,11 +10,14 @@ if [[ ! -f "network-bootstrapper-$version.jar" ]]; then
     curl -o "network-bootstrapper-$version.jar" "https://software.r3.com/artifactory/corda-releases/net/corda/corda-tools-network-bootstrapper/$version/corda-tools-network-bootstrapper-$version.jar"
 fi
 
+
+"$script_path"/decryptSecrets.sh
 # loading secrets
 # trunk-ignore(shellcheck/SC1091)
 set -o +x allexport; source "$script_path/.secrets"; set +o allexport
 
 export KEY_STORE_PASSWORD TRUST_STORE_PASSWORD DATABASE_URL DATABASE_USER DATABASE_PASSWORD DATASOURCE_CLASS_NAME
+#rm .secrets
 
 # generating configs for the nodes
 echo "this script requires java version 1.8 or 11"

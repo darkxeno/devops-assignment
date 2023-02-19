@@ -47,8 +47,8 @@ configmap:
   DATASOURCE_CLASS_NAME: org.postgresql.ds.PGSimpleDataSource
 
 secret:
-  KEY_STORE_PASSWORD: cordacadevpass
-  TRUST_STORE_PASSWORD: trustStorePassword
+  KEY_STORE_PASSWORD: ${var.key_store_password}
+  TRUST_STORE_PASSWORD: ${var.trust_store_password}
   DATABASE_PASSWORD: ${var.database_password}
 
 migrationJob:

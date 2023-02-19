@@ -25,6 +25,12 @@ resource "azurerm_subnet" "subnet-1" {
   service_endpoints    = ["Microsoft.Sql"]
 }
 
+module "secrets-management" {
+  source  = "./modules/secrets-management"
+
+  azurerm_resource_group = azurerm_resource_group.corda
+}
+
 module "kubernetes-cluster-creation" {
   source  = "./modules/kubernetes-cluster-creation"
 
@@ -51,10 +57,6 @@ module "helm-chart-deployment" {
   database_password = module.postgress-database.admin_password
   acr_login_server  = module.kubernetes-cluster-creation.acr_login_server
 
-}
-
-module "secrets-management" {
-  source  = "./modules/secrets-management"
-
-  azurerm_resource_group = azurerm_resource_group.corda
+  key_store_password   = module.secrets-management.secret_values["KEY_STORE_PASSWORD"]
+  trust_store_password = module.secrets-management.secret_values["TRUST_STORE_PASSWORD"]
 }
