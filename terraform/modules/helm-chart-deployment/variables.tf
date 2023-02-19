@@ -14,6 +14,10 @@ variable "database_password" {
     sensitive = true
 }
 
+variable "database_url" {
+    type      = string
+}
+
 variable "acr_login_server" {
    type = string
 }

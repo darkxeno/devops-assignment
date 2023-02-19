@@ -42,7 +42,7 @@ version:
   tag: bf6f17c
 
 configmap:
-  DATABASE_URL: jdbc:postgresql://localhost:5432/postgres
+  DATABASE_URL: ${var.database_url}
   DATABASE_USER: postgres    
   DATASOURCE_CLASS_NAME: org.postgresql.ds.PGSimpleDataSource
 
