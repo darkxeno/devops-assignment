@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  corda-notary-node:
+    depends_on:
+      - db
+    image: corda-notary-node
+    env_file:
+    - ./corda/.secrets
+    environment:
+      DATABASE_URL: "jdbc:postgresql://db:5432/postgres"    
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+
+  db:
+    image: postgres:11
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: example
+

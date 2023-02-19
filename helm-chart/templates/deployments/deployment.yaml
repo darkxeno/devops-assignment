@@ -1,0 +1,123 @@
+{{- $self := . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ required "You must specify the application name" .Values.name }}
+  labels:
+    app: {{ .Values.name | quote }}
+    commitID: {{ (.Values.version).tag | default "not-defined" | quote }}
+  annotations:
+    kubernetes.io/change-cause: "commitID-{{ (.Values.version).tag | default "not-defined" }}"
+spec:
+  revisionHistoryLimit: 5
+{{- if hasKey .Values "replicas" }}
+  replicas: {{ .Values.replicas }}
+{{- else }}
+  replicas: 1
+{{- end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+{{- if .Values.strategy }}
+  strategy:          
+{{ toYaml .Values.strategy | indent 4 }}
+{{- end }}      
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmaps/configmap.yaml") . | sha256sum }}
+        checksum/configmap-values: {{ include "config-map-contents" . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secrets/secret.yaml") . | sha256sum }}
+        checksum/secret-versions: {{ include "secret-contents" . | sha256sum }}
+        checksum/secret-labels: {{ include "secret-labels" . | sha256sum }}            
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: {{ .Values.name }}
+{{- if .Values.serviceAccountName }}
+      automountServiceAccountToken: true
+      serviceAccountName: {{ .Values.serviceAccountName }}
+{{- end }}
+{{- if .Values.initContainers }}  
+      initContainers:
+      {{- range $key, $val := .Values.initContainers }}
+      - name: {{ required "Init Container should have a name" $val.name | quote }}
+        {{- if eq $val.image "same" }}     
+{{- if $self.Values.version.digest }}
+        image: {{ $self.Values.image.registry }}/{{ $self.Values.image.name }}@{{ $self.Values.version.digest }}
+{{- else if $self.Values.version.tag }}
+        image: {{ .Values.image.registry }}/{{ $self.Values.image.name }}:{{ $self.Values.version.tag }}
+{{- else }}            
+        image: {{ $self.Values.image.registry }}/{{ $self.Values.image.name }}:latest }}        
+{{- end }}
+        {{- else }}
+        image: {{ required "Init Container should have a image" $val.image | quote }}
+        {{- end }}        
+        command: {{ toYaml $val.command | nindent 12  }}
+        envFrom:
+        - secretRef:
+            name: {{ $self.Values.name }}-secret
+            optional: false
+        - configMapRef:
+            name: {{ $self.Values.name }}-configmap
+            optional: false  
+      {{- end }}
+{{- end }}      
+      containers:        
+      - name: {{ .Values.name }}
+{{- if .Values.mainContainer }}
+{{ toYaml .Values.mainContainer | indent 8 }}
+{{- end }}      
+        envFrom:
+        - secretRef:
+            name: {{ .Values.name }}-secret
+            optional: false
+        - configMapRef:
+            name: {{ .Values.name }}-configmap
+            optional: false          
+{{- if .Values.version.digest }}
+        image: {{ .Values.image.registry }}/{{ .Values.image.name }}@{{ .Values.version.digest }}
+{{- else if .Values.version.tag }}
+        image: {{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.version.tag }}
+{{- else }}            
+        image: {{ .Values.image.registry }}/{{ .Values.image.name }}:latest }}
+{{- end }}        
+        ports:
+        - containerPort: {{ required "You must specify the application port .Values.port" .Values.port }}
+          protocol: TCP
+        livenessProbe: 
+{{ toYaml .Values.livenessProbe | indent 10 }}          
+        readinessProbe: 
+{{ toYaml .Values.readinessProbe | indent 10 }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+
+{{- if or .Values.volumeMounts .Values.pvcs }}
+        volumeMounts:
+{{- if .Values.volumeMounts }}          
+{{ toYaml .Values.volumeMounts | indent 8 }}
+{{- end }}
+        {{- range $key, $val := .Values.pvcs }}  
+        - mountPath: {{ required "PVCs should have a mountPath" $val.mountPath | quote }}
+          name: {{ required "PVCs should have a name" $val.name | quote }}          
+        {{- end }}        
+{{- end }}
+      terminationGracePeriodSeconds: 30
+{{- if or .Values.volumes .Values.pvcs }}
+      volumes:
+{{- if .Values.volumes }}        
+{{ toYaml .Values.volumes | indent 8 }}
+{{- end }}
+      {{- range $key, $val := .Values.pvcs }}  
+        - name: {{ required "PVCs should have a name" $val.name | quote }}
+          persistentVolumeClaim: 
+            claimName: {{ required "PVCs should have a name" $val.name}}-claim
+      {{- end }}      
+{{- end }}
+

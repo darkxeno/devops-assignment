@@ -1,0 +1,11 @@
+apiVersion: v1
+data: 
+{{ include "config-map-contents" . | nindent 2 }}  
+kind: ConfigMap
+metadata:
+  name: {{ required "You must specify the application name" .Values.name }}-configmap
+  labels: 
+    configmap-sha: {{ required "You must specify the configmap values" .Values.configmap | toJson | sha1sum  }}
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/sync-wave: "1"    

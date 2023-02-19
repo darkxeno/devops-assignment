@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ required "You must specify the application name .Values.name" .Values.name }}
+  annotations:
+{{- if (.Values.service).loadBalancerIP }}     
+    networking.gke.io/load-balancer-type: Internal
+{{- end }}    
+spec:
+  ports:
+  - port: {{ required "You must specify the application port .Values.port" .Values.port }}
+  selector:
+    app: {{ .Values.name }}
+{{- if (.Values.service).type }} 
+  type: {{ .Values.service.type }} 
+{{- end }}
+{{- if (.Values.service).loadBalancerIP }} 
+  loadBalancerIP: {{ .Values.service.loadBalancerIP }} 
+{{- end }}
+{{- if eq (.Values.service).sessionAffinity "ClientIP" }}    
+  sessionAffinity: ClientIP
+{{- end }}

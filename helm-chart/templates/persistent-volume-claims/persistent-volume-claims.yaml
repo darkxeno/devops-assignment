@@ -1,0 +1,16 @@
+{{- if .Values.pvcs }}
+{{- range $key, $val := .Values.pvcs }} 
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ required "Volume mount should have a name" $val.name}}-claim
+spec:
+  storageClassName: premium-rwo
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ required "Volume mount should have a storage size" $val.storage}}
+---      
+{{- end }}
+{{- end }}      

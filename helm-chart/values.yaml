@@ -1,0 +1,56 @@
+# these are default values
+env: 'dev'
+name: 'corda-node'
+port: 8080
+
+image:
+  registry: 'azure-container-registry'
+  name: 'image-name'
+
+# readinessProbe:
+#   httpGet:
+#     path: /health-check
+#     port: 8080
+#     scheme: http
+
+# resources:
+#   limits:
+#     cpu: 1000m
+#     memory: 512Mi 
+
+# ingress:
+#   enabled: true
+#   isDefaultBackend: true
+#   path: /
+#   backendProtocol: HTTPS
+#   rewriteTarget: '/$2'
+#   serviceName: anotherService
+#   servicePort: 8888
+
+# service:
+#   type: LoadBalancer
+ 
+
+# configmap:
+#   key1: value1
+
+# secret:
+#   key1: value1
+
+# initContainers:
+# - name: init-myservice
+#   image: busybox:1.28
+#   command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
+#   volumeMountPath: /home/airlock/iam/instances/auth/medusa-configuration.xml
+
+# pvcs:
+# - name: my-volume
+#   storageClassName: premium-rwo
+#   storage: 30Gi
+
+# strategy:
+#   type: "Recreate"
+
+# mainContainer:
+#   command: ["printenv"]
+#   args: ["HOSTNAME", "KUBERNETES_PORT"]

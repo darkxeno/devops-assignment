@@ -1,0 +1,64 @@
+{{- $self := . -}}
+{{- if eq (.Values.ingress).enabled true }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ required "You must specify the application name .Values.name" .Values.name }}-ingress  
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
+    nginx.ingress.kubernetes.io/backend-protocol: {{ (.Values.ingress).backendProtocol | default "HTTP" | quote }}
+{{- if (.Values.ingress).rewriteTarget }}    
+    nginx.ingress.kubernetes.io/rewrite-target: {{ .Values.ingress.rewriteTarget }}
+{{- end }}
+{{- if (.Values.ingress).proxyBodySize }}    
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.proxyBodySize }}
+{{- end }}
+{{- if (.Values.ingress).proxyReadTimeout }}    
+    nginx.ingress.kubernetes.io/proxy-read-timeout: {{ .Values.ingress.proxyReadTimeout | quote }}
+{{- end }} 
+{{- if (.Values.ingress).proxySendTimeout }}    
+    nginx.ingress.kubernetes.io/proxy-send-timeout : {{ .Values.ingress.proxySendTimeout | quote }}
+{{- end }}    
+spec:
+  ingressClassName: nginx
+{{- if eq (.Values.ingress).isDefaultBackend true }}    
+  defaultBackend:
+    service:
+      name: {{ .Values.name }}
+      port:
+        number: {{ (.Values.ingress).servicePort | default .Values.port }}
+{{- end }}        
+  rules:
+  - 
+  {{- if (.Values.ingress).host }}    
+    host: {{ .Values.ingress.host }}
+  {{- end }} 
+    http:           
+      paths:  
+      - path: {{ (.Values.ingress).path | default "/" | quote }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ (.Values.ingress).serviceName | default .Values.name }}
+            port:
+              number: {{ required "You must specify the application port .Values.port" .Values.port }}
+{{- if (.Values.ingress).extraRules  }}              
+{{- range $key, $val := (.Values.ingress).extraRules }}
+  -
+  {{- if ($self.Values.ingress).host }}    
+    host: {{ $self.Values.ingress.host }}
+  {{- end }} 
+    http:           
+      paths:  
+      - path: {{ $val.path | default "/" | quote }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ ($self.Values.ingress).serviceName | default $self.Values.name }}
+            port:
+              number: {{ $self.Values.port }}
+{{- end }}              
+{{- end }}              
+{{- end }}              
+
+

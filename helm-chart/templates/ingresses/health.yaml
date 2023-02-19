@@ -1,0 +1,45 @@
+{{- $self := . -}}
+{{- if eq (.Values.ingress).enabled true }}
+{{- if and (eq (.Values.ingress).exposeReadinessProbe true) ((.Values.readinessProbe).httpGet).path }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ required "You must specify the application name .Values.name" .Values.name }}-health-ingress  
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
+    nginx.ingress.kubernetes.io/backend-protocol: {{ (.Values.ingress).backendProtocol | default "HTTP" | quote }}
+    nginx.ingress.kubernetes.io/rewrite-target: {{ ((.Values.readinessProbe).httpGet).path | quote }}
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: {{.Values.name }}-health-ingress-basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - monitoring'
+spec:
+  ingressClassName: nginx      
+  rules:             
+  - 
+  {{- if (.Values.ingress).host }}    
+    host: {{ .Values.ingress.host }}
+  {{- end }} 
+    http:           
+      paths:  
+      - path: /health/{{ (.Values.ingress).serviceName | default .Values.name }}/
+        pathType: Exact
+        backend:
+          service:
+            name: {{ (.Values.ingress).serviceName | default .Values.name }}
+            port:
+              number: {{ required "You must specify the application port .Values.port" .Values.port }}
+...
+---
+apiVersion: v1
+data:
+  auth: bW9uaXRvcmluZzokYXByMSRibDYwN3BFTyRjeC5GaGJpNGVMZTNwTnJKNkVkOW0uCg==
+kind: Secret
+metadata:
+  name: {{.Values.name }}-health-ingress-basic-auth
+type: Opaque
+...
+{{- end }}
+{{- end }}
+
+
