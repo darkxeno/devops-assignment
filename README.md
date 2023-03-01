@@ -1,6 +1,7 @@
 **DevOps Technical Assignment**
 
 **Docker image**
+
 Please create Docker image for running a Corda 4.9 node.
 
 The node can be bootstrapped using the "network-boostrapper" tool, here you can find documentation and instructions on how to use it:
