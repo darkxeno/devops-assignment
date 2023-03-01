@@ -41,7 +41,7 @@ Please create a Terraform file that deploys a Kubernetes instance in Azure, a Po
 
 Please provide answers to the following follow-up questions:
 
-How would you secure the RPC port on the Corda node?
+- How would you secure the RPC port on the Corda node?
 
 We can encrypt the traffic using the SSL configuration, and expose the port using any of these options, in preference order:
 
@@ -58,7 +58,7 @@ Other options could exists depending on the source of the traffic that needs to 
 
 
 
-Where are the keys of the Corda node stored, and how are they managed?
+- Where are the keys of the Corda node stored, and how are they managed?
 
 Secrets are encrypted using [SOPS](https://github.com/mozilla/sops#encrypting-using-age) (with [age](https://github.com/FiloSottile/age) encryption). They are stored on the /corda/.secrets.enc
 To simplify running the solution a decrypted version has been provided under /corda/.secrets
