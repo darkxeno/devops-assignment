@@ -41,9 +41,9 @@ Please create a Terraform file that deploys a Kubernetes instance in Azure, a Po
 
 Please provide answers to the following follow-up questions:
 
-    How would you secure the RPC port on the Corda node?
+How would you secure the RPC port on the Corda node?
 
-    We can encrypt the traffic using the SSL configuration, and expose the port using any of these options, in preference order:
+We can encrypt the traffic using the SSL configuration, and expose the port using any of these options, in preference order:
 
     - If the source and target of the traffic is on the same kubernetes cluster or using private VPC peering and we want to add another layer of protection using mutual TLS, we can use Istio or Envoy.
     - If the source and target of the traffic is on the same kubernetes cluster we could use network policies to define traffic allowance rules: https://kubernetes.io/docs/concepts/services-networking/network-policies/
@@ -54,18 +54,18 @@ Please provide answers to the following follow-up questions:
     - Using kubernetes port forwarding or telepresence during admin sessions
     - Using public access with whitelistened public IPs
 
-    Other options could exists depending on the source of the traffic that needs to connect to the RPC port.
+Other options could exists depending on the source of the traffic that needs to connect to the RPC port.
 
 
 
-    Where are the keys of the Corda node stored, and how are they managed?
+Where are the keys of the Corda node stored, and how are they managed?
 
-    Secrets are encrypted using [SOPS](https://github.com/mozilla/sops#encrypting-using-age) (with [age](https://github.com/FiloSottile/age) encryption). They are stored on the /corda/.secrets.enc
-    For simplicity a descripted version has been provided under /corda/.secrets
+Secrets are encrypted using [SOPS](https://github.com/mozilla/sops#encrypting-using-age) (with [age](https://github.com/FiloSottile/age) encryption). They are stored on the /corda/.secrets.enc
+To simplify running the solution a decrypted version has been provided under /corda/.secrets
 
-    To enable encryption / decryption store the provided .sops.yaml under your user home directory (~/.sops.yaml)
+To enable encryption / decryption store the provided .sops.yaml under your user home directory (~/.sops.yaml)
 
-    The command for are under the /corda subfolder: encryptSecrets.sh and decryptSecrets.sh
+The script to encrypt / decrypt are under the /corda subfolder: encryptSecrets.sh and decryptSecrets.sh
 
-    The prefered way to use it should using Azure keyvault keys to simplify usage and sharing of the keys:
-    https://github.com/mozilla/sops#encrypting-using-azure-key-vault
+The prefered way to use it should using Azure keyvault keys to simplify usage and sharing of the keys:
+https://github.com/mozilla/sops#encrypting-using-azure-key-vault
