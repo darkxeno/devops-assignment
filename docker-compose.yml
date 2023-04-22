@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   corda-notary-node:
@@ -6,9 +6,9 @@ services:
       - db
     image: corda-notary-node
     env_file:
-    - ./corda/.secrets
+      - ./corda/.secrets
     environment:
-      DATABASE_URL: "jdbc:postgresql://db:5432/postgres"    
+      DATABASE_URL: "jdbc:postgresql://db:5432/postgres"
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -20,4 +20,3 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: example
-

@@ -38,6 +38,11 @@ data "azurerm_kubernetes_cluster_node_pool" "aks-node-pool" {
   resource_group_name     = var.azurerm_resource_group.name
 }
 
+data "azurerm_virtual_network" "aks-vnet" {
+  name = data.azurerm_kubernetes_cluster_node_pool.aks-node-pool.vnet_subnet_id
+  resource_group_name     = var.node_resource_group
+}
+
 data "azurerm_subnet" "aks-subnet" {
   name                 = "aks-subnet"
   virtual_network_name = "aks-vnet-36513379"

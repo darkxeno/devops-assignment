@@ -1,12 +1,11 @@
 # these are default values
-env: 'dev'
-name: 'corda-node'
+env: "dev"
+name: "corda-node"
 port: 8080
 
 image:
-  registry: 'azure-container-registry'
-  name: 'image-name'
-
+  registry: "azure-container-registry"
+  name: "image-name"
 # readinessProbe:
 #   httpGet:
 #     path: /health-check
@@ -16,7 +15,7 @@ image:
 # resources:
 #   limits:
 #     cpu: 1000m
-#     memory: 512Mi 
+#     memory: 512Mi
 
 # ingress:
 #   enabled: true
@@ -29,7 +28,6 @@ image:
 
 # service:
 #   type: LoadBalancer
- 
 
 # configmap:
 #   key1: value1
